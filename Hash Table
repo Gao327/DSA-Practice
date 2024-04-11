@@ -1,0 +1,157 @@
+#include <iostream>
+using namespace std;
+class HashTable {
+private:
+	int *_ht; //array to store hash table items. Max 100
+	int _size; //size of the hash table
+	int _nItem; //no. of items added
+    int h(int x); // Sum of Digit Hashing function
+public:
+	HashTable(int);
+	void insert(int);
+	void remove(int);
+	bool exist(int);
+	void resize(int newSize);
+
+	void printHashTable();
+	~HashTable();
+	
+};
+
+// Hash Function can be modified according to needs.
+int HashTable::h(int x) {
+	//sum of all digits
+	int ans = 0;
+	while (x > 0) {
+		int lastDigit = x % 10;
+		ans += lastDigit;
+		x /= 10;
+	}
+	return ans;
+}
+
+HashTable::HashTable(int n) {
+
+	//initially, populate has_htable with 0s
+	_size = n;
+	_nItem = 0;
+	_ht = new int[_size];
+	for (int i = 0; i < _size; i++) {
+		_ht[i] = 0;
+	}
+}
+
+
+void HashTable::printHashTable() {
+	
+	cout << "Current hash table: " << endl;
+	for (int i = 0; i < _size; i++) {
+		cout << _ht[i] << " ";
+	}
+	cout << endl;
+}
+
+
+HashTable::~HashTable() {
+	delete[] _ht;
+}
+
+
+
+void HashTable::insert(int n) {
+
+    // default output format for error message
+    //cout << n << " already exists in the hash table."<<endl;
+    bool finish = false;
+    int key = h(n);
+    int collision = 0;
+    if (_ht[key%_size] == 0 || _ht[key%_size] == -1)
+    {
+        _ht[key % _size] = n;
+        finish = true;
+        _nItem++;
+    }
+    while (!finish)
+    {
+        if (_ht[key % _size] == 0 || _ht[key % _size] == -1)
+        {
+            _ht[key % _size] = n;
+            finish = true;
+            _nItem++;
+          
+
+        }
+        else if (_ht[key % _size] == n)
+        {
+            cout << n << " already exists in the hash table." << endl;
+            finish = true;
+        }
+        key = h(n) + collision * collision;
+        collision++;
+        
+
+    }
+
+}
+
+//n does not necasarrily exist in the hash table
+void HashTable::remove(int n) {
+    // default output format for error message
+    //cout << "Fail to remove " << n << endl;
+    bool finish = false;
+    int key = h(n);
+    int collision = 1;
+    if (_ht[key % _size] == 0)
+    {
+        cout << "Fail to remove " << n << endl;
+        finish = true;
+        
+    }
+    while (!finish)
+    {
+        if (_ht[key % _size] == 0)
+        {
+            cout << "Fail to remove " << n << endl;
+            finish = true;
+        }
+        else if (_ht[key % _size] == n)
+        {
+            _ht[key % _size] = -1;
+            finish = true;
+            _nItem--;
+        }
+        key = h(n) +  collision * collision;
+        collision++;
+
+
+    }
+}
+
+bool HashTable::exist(int n) {
+    return false;
+}
+
+
+void HashTable::resize(int newSize) {
+    if (newSize < _nItem)
+    {
+        return;
+    }
+
+    HashTable newhash(newSize);
+
+    for (int i = 0; i < _size; i++)
+    {
+        if (_ht[i] != -1 && _ht[i] != 0)
+        {
+            newhash.insert(_ht[i]);
+        }
+    }
+
+    int* tmp = _ht;
+    _ht = newhash._ht;
+    newhash._ht = tmp;
+    _size = newSize;
+}
+
+
