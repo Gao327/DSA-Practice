@@ -1,0 +1,155 @@
+#include <iostream>
+using namespace std;
+template <class T>
+class List;
+
+template <class T>
+class ListNode
+{
+  private:
+	  T _item;
+	  ListNode<T> *_next;
+
+  public:
+	  ListNode(T);
+	  T content() { return _item; };
+	  void print() { cout << _item; };
+	  friend class List<T>;
+};
+
+template <class T>
+class List
+{
+  private:
+	  int _size;
+	  ListNode<T> *_head;
+
+  public:
+	  List()	{	_size = 0;	_head = NULL;};
+	  ~List();
+	  void insertHead(T);
+	  T headItem();
+	  void removeHead();
+    T& operator [](int idx);
+    void insertAtPos(int idx,T item);
+    void removeAtPos(int idx);
+};
+
+
+template <class T>
+T& List<T>::operator[](int idx) {
+    if (_head == nullptr || idx > _size + 1)
+    {
+        cout<<"Index out of bound error (operator[])"<<endl;
+    }
+    ListNode<T>* tracer = _head;
+    for (int pos = 0; pos < idx; pos++)
+    {
+        if (tracer->_next != nullptr)
+            tracer = tracer->_next;
+        else
+        {
+            cout<<"Index out of bound error (operator[])"<<endl;
+        }
+    }
+    return tracer->_item;
+}
+template <class T>
+void List<T>::insertAtPos(int idx, T item) {
+    // If item is inserted at pos idx, idx - 1 is the parent and original idx is the child.
+    // only case is insert insert at 0.
+    if ((_head == nullptr) && (idx > _size))
+    {
+        cout<<"Index out of bound error (insertAtPos)"<<endl;
+    }
+   
+    if (idx == 0)
+    {
+        insertHead(item);
+    }
+    
+    else if(idx == _size)
+    {
+        ListNode<T>* tracer = _head;
+        for (int i = 0; i < idx - 1; i++)
+        {
+            if (tracer->_next != nullptr)
+                tracer = tracer->_next;
+            else
+                cout<<"Index out of bound error (insertAtPos)"<<endl;
+        }
+        tracer->_next = new ListNode<T>(item);
+        _size++;
+    }
+    else if (idx < _size)
+    {
+        ListNode<T>* tracer = _head;
+        for (int i = 0; i < idx - 1; i++)
+        {
+            if (tracer->_next != nullptr)
+                tracer = tracer->_next;
+            else
+                cout<<"Index out of bound error (insertAtPos)"<<endl;
+        }
+        ListNode<T>* child = tracer->_next;
+        tracer->_next = new ListNode<T>(item);
+        tracer->_next->_next = child;
+        _size++;
+    }
+    else
+    {
+        cout<<"Index out of bound error (insertAtPos)"<<endl;
+    }
+}
+template <class T>
+void List<T>::removeAtPos(int idx) {
+    if ((_head == nullptr) || (idx >= _size))
+    {
+        cout<<"Index out of bound error(removeAtPos)"<<endl;
+    }
+    // remove head.
+    if (idx == 0)
+    {
+        removeHead();
+    }
+    //remove end;
+    
+    else if (idx == _size - 1)
+    {
+        ListNode<T>* tracer = _head;
+        for (int i = 0; i < idx - 1; i++)
+        {
+            if (tracer->_next != nullptr)
+                tracer = tracer->_next;
+            else
+                cout<<"Index out of bound error(removeAtPos)"<<endl;
+        }
+        ListNode<T>* tmp = tracer->_next;
+        tracer->_next = nullptr;
+        delete(tmp);
+        _size--;
+    }
+    
+    // delete at anywhere else
+    else
+    {
+        ListNode<T>* tracer = _head;
+        for (int i = 0; i < idx - 1; i++)
+        {
+            if (tracer->_next != nullptr)
+                tracer = tracer->_next;
+            else
+                cout<<"Index out of bound error(removeAtPos)"<<endl;
+        }
+        if (tracer->_next == nullptr || tracer->_next->_next == nullptr)
+        {
+            cout<<"Index out of bound error(removeAtPos)"<<endl;
+        }
+        ListNode<T>* child = tracer->_next->_next;
+        ListNode<T>* tmp = tracer->_next;
+        tracer->_next = child;
+        delete(tmp);
+        _size--;
+    }
+ 
+}
