@@ -1,0 +1,45 @@
+#include <vector>
+#include <algorithm>
+// def of Clase QueueSimulator and Class Customers not included here.
+
+struct Server {
+    int available_time;
+};
+bool compare_servers(const Server& s1, const Server& s2) {
+    return s1.available_time < s2.available_time;
+}
+bool compare_customers(const Customer& c1, const Customer& c2) {
+    return c1.processing_time() < c2.processing_time(); 
+}
+vector<Customer> QueueSimulator::simulateQueue(const vector<Customer>& customers) {
+    vector<Customer> customers_copy = customers;
+    vector<Server> servers(_num_servers, { 0 }); 
+    for (int i = 0; i < customers_copy.size();) {
+        std::sort(servers.begin(), servers.end(), compare_servers); 
+        Server& next_server = servers[0];
+        if (customers_copy[i].arrival_time() > next_server.available_time) {
+            customers_copy[i].set_service_time(customers_copy[i].arrival_time());
+            next_server.available_time = customers_copy[i].service_time() + customers_copy[i].processing_time();
+            ++i;
+        }
+        else {
+            if (_priority_order) {
+               
+                int waitlistStart = i;
+                while (i < customers_copy.size() && customers_copy[i].arrival_time() <= next_server.available_time) {
+                    ++i;
+                }
+                
+                if (i - waitlistStart > 1) { 
+                    std::sort(customers_copy.begin() + waitlistStart, customers_copy.begin() + i, compare_customers);
+                }
+                
+                i = waitlistStart;
+            }
+            customers_copy[i].set_service_time(next_server.available_time);
+            next_server.available_time += customers_copy[i].processing_time();
+            ++i;
+        }
+    }
+    return customers_copy;
+}
