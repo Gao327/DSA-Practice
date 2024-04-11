@@ -1,0 +1,350 @@
+#ifndef TREE_H
+#define TREE_H
+#include <algorithm>
+#include <cassert>
+#include <functional>
+#include <string>
+using std::string;
+template <typename T>
+std::string my_to_string(const T& t) {
+    return std::to_string(t);
+}
+template <>
+std::string my_to_string(const std::string& t) {
+    return "\"" + t + "\"";
+}
+template <typename T> struct Node {
+    T element;
+    int height;
+    Node<T>* left;
+    Node<T>* right;
+    Node(T element)
+        : element{ element }, height{ 0 }, left{ nullptr }, right{ nullptr } {}
+    Node(T element, int height)
+        : element{ element }, height{ height }, left{ nullptr }, right{ nullptr } {}
+};
+template <typename T> class Tree {
+private:
+    size_t m_size;
+    Node<T>* m_root;
+public:
+    // Constructor
+    Tree();
+    // Rule of three:
+    // If a class requires a user-defined destructor, a user-defined copy
+    // constructor, or a user-defined copy assignment operator, it almost
+    // certainly requires all three.
+    // Destructor
+    ~Tree();
+    // Returns a pointer to the root
+    Node<T>* root();
+    // Checks whether the tree is empty
+    bool empty() const;
+    // Returns the number of elements
+    size_t size() const;
+    // Returns the height of the tree
+    int height() const;
+    // Inserts the specified element
+    void insert(T element);
+    // Checks whether the container contains the specified element
+    bool contains(T element) const;
+    // Returns the maximum element
+    T max() const;
+    // Returns the minimum element
+    T min() const;
+    // Returns the successor of the specified element
+    T successor(T element);
+    // Convert each element in the tree to string in pre-order.
+    string pre_order();
+    // Convert each element in the tree to string in order.
+    string in_order();
+    // Convert each element in the tree to string in post-order.
+    string post_order();
+    // Returns a string equivalent of the tree
+    string to_string(bool with_height = true) const {
+        return m_to_string(with_height, m_root, 0);
+    }
+private:
+    string m_to_string(bool with_height, Node<T>* node, int ident) const {
+        string res;
+        if (node == nullptr) {
+            return res;
+        }
+        if (node->right != nullptr) {
+            res += m_to_string(with_height, node->right, ident + 2);
+        }
+        for (int i = 0; i < ident; i++) {
+            res += " ";
+        }
+        res += my_to_string(node->element);
+        if (with_height) {
+            res += "(h=" + my_to_string(node->height) + ")";
+        }
+        res += "\n";
+        if (node->left != nullptr) {
+            res += m_to_string(with_height, node->left, ident + 2);
+        }
+        return res;
+    }
+    // Feel free to declare helper functions here, if necessary
+    // Helper delete subtree.
+
+    void delete_subtree(Node<T>* root)
+    {
+        if (root != nullptr)
+        {
+            if (root->left != nullptr)
+            {
+                delete_subtree(root->left);
+            }
+            if (root->right != nullptr)
+            {
+                delete_subtree(root->right);
+            }
+            delete(root);
+        }
+    }
+};
+// Helper function to update the height of a node
+template <typename T>
+void node_height_update(Node<T>* root)
+{
+    if (root == nullptr)
+    {
+        return;
+    }
+    else
+    {
+        node_height_update(root->left);
+        node_height_update(root->right);
+        int left_height = (root->left != nullptr) ? root->left->height : -1;
+        int right_height = (root->right != nullptr) ? root->right->height : -1;
+        root->height = std::max(left_height, right_height) + 1;
+    }
+}
+// Helper Function to rotate
+template<typename T>
+int bf(Node<T>* v)
+{
+    int left_height = (v->left != nullptr) ? v->left->height : -1;
+    int right_height = (v->right != nullptr) ? v->right->height : -1;
+    return left_height - right_height;
+}
+template <typename T>
+Node<T>* right_rotate_(Node<T>* v)
+{
+    Node<T>* w = v->left;
+    Node<T>* x = w->right;
+    w->right = v;
+    v->left = x;
+    node_height_update(w);
+    return w;
+}
+template <typename T>
+Node<T>* left_rotate_(Node<T>* v)
+{
+    Node<T>* w = v->right;
+    Node<T>* x = w->left;
+    w->left = v;
+    v->right = x;
+    node_height_update(w);
+    return w;
+}
+template <typename T>
+Node<T>* insert_(Node<T>* node, T element)
+{
+    if (node == nullptr) {
+        node = new Node<T>(element);
+    }
+    else if (element < node->element)
+        node->left = insert_(node->left, element);
+    else if (element > node->element)
+        node->right = insert_(node->right, element);
+    else
+        return node;
+    node_height_update(node);
+    int factor = bf(node);
+    if (factor > 1 && element < node->left->element)
+        return right_rotate_(node);
+    if (factor < -1 && element > node->right->element)
+        return left_rotate_(node);
+    if (factor > 1 && element > node->left->element)
+    {
+        node->left = left_rotate_(node->left);
+        return right_rotate_(node);
+    }
+    if (factor < -1 && element < node->right->element)
+    {
+        node->right = right_rotate_(node->right);
+        return left_rotate_(node);
+    }
+    return node;
+}
+// Constructor
+template <typename T> Tree<T>::Tree() :m_root(nullptr), m_size(0) {
+    // TODO: Implement this method
+}
+// Destructor
+template <typename T> Tree<T>::~Tree() {
+    // TODO: Implement this method
+    delete_subtree(m_root);
+}
+// Returns a pointer to the root
+template <typename T> Node<T>* Tree<T>::root() {
+    // TODO: Implement this method
+    return m_root;
+}
+// Checks whether the tree is empty
+template <typename T> bool Tree<T>::empty() const {
+    // TODO: Implement this method
+    return (m_size == 0);
+}
+// Returns the number of elements
+template <typename T> size_t Tree<T>::size() const {
+    return m_size;
+}
+// Returns the height of the tree
+template <typename T> int Tree<T>::height() const {
+    if (m_root == nullptr)
+        return -1;
+    return m_root->height;
+}
+// Inserts an element
+template <typename T> void Tree<T>::insert(T element) {
+    m_root = insert_(root(), element);
+    m_size++;
+}
+// Checks whether the container contains the specified element
+template <typename T> bool Tree<T>::contains(T element) const {
+    // TODO: Implement this method
+    Node<T>* temp = m_root;
+    while (temp != nullptr)
+    {
+        if (element == temp->element)
+        {
+            return true;
+        }
+        if (element > temp->element)
+        {
+            temp = temp->right;
+        }
+        else
+        {
+            temp = temp->left;
+        }
+    }
+    return false;
+}
+// Returns the maximum element
+template <typename T> T Tree<T>::max() const {
+    // TODO: Implement this method
+    if (m_root == nullptr)
+    {
+        throw std::out_of_range("List is empty");
+    }
+    Node<T>* temp = m_root;
+    while (temp->right != nullptr)
+    {
+        temp = temp->right;
+    }
+    return temp->element;
+}
+// Returns the minimum element
+template <typename T> T Tree<T>::min() const {
+    // TODO: Implement this method
+    if (m_root == nullptr)
+    {
+        throw std::out_of_range("List is empty");
+    }
+    Node<T>* temp = m_root;
+    while (temp->left != nullptr)
+    {
+        temp = temp->left;
+    }
+    return temp->element;
+}
+// Returns the successor of the specified element
+template <typename T>
+T Tree<T>::successor(T element) {
+    if (m_root == nullptr)
+    {
+        throw std::out_of_range("Tree is empty");
+    }
+    Node<T>* temp = m_root;
+    Node<T>* last_left = nullptr;
+    while (true)
+    {
+        if (temp == nullptr)
+        {
+            break;
+        }
+        if (element == temp->element)
+        {
+            break;
+        }
+        if (element > temp->element)
+        {
+            temp = temp->right;
+        }
+        else
+        {
+            last_left = temp;
+            temp = temp->left;
+        }
+    }
+    if (temp != nullptr && temp->right != nullptr)
+    {
+        Node<T>* tempright = temp->right;
+        while (tempright->left != nullptr)
+        {
+            tempright = tempright->left;
+        }
+        return tempright->element;
+    }
+    if (last_left == nullptr)
+    {
+        throw std::out_of_range("No successor");
+    }
+    return last_left->element;
+}
+template <typename T>
+string _pre_order(Node<T>* node) {
+    return my_to_string(node->element)
+        + (node->left == nullptr ? "" : " " + _pre_order(node->left))
+        + (node->right == nullptr ? "" : " " + _pre_order(node->right));
+}
+template <typename T>
+string Tree<T>::pre_order() {
+    if (m_root == nullptr) {
+        return "";
+    }
+    return _pre_order(m_root);
+}
+template <typename T>
+string _in_order(Node<T>* node) {
+    return (node->left == nullptr ? "" : _in_order(node->left) + " ")
+        + my_to_string(node->element)
+        + (node->right == nullptr ? "" : " " + _in_order(node->right));
+}
+template <typename T>
+string Tree<T>::in_order() {
+    // TODO: Implement this method
+    if (m_root == nullptr) {
+        return "";
+    }
+    return _in_order(m_root);
+}
+template <typename T>
+string _post_order(Node<T>* node) {
+    return (node->left == nullptr ? "" : _post_order(node->left) + " ")
+        + (node->right == nullptr ? "" : _post_order(node->right) + " ")
+        + my_to_string(node->element);
+}
+template <typename T>
+string Tree<T>::post_order() {
+    if (m_root == nullptr) {
+        return "";
+    }
+    return _post_order(m_root);
+}
+#endif
