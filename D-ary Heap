@@ -1,0 +1,82 @@
+#define DEFAULTHEAPSIZE 1023
+template <class T>
+class DHeap {
+protected:
+	T* _heap;
+    int _d; // It is a d-ary Heap
+	int _n; // no. item in the heap
+	void _bubbleUp(int index);
+	void _bubbleDown(int index);
+    int _lookFor(T x); // return the index of the item x, return -1 if not found
+                       // it is not a good/usual implementation, so we hide it from public
+public:
+	DHeap(int d) {
+        _d = d;
+		_heap = new T[DEFAULTHEAPSIZE];
+		_n = 0;
+	}
+	void insert(T);
+	T extractMax();
+	void printHeapArray();
+	~DHeap() { delete[] _heap; };
+};
+
+
+// IMPLEMENTATION 
+
+template <class T>
+void DHeap<T>::_bubbleUp(int index) {
+    while (index > 0 && _heap[index] > _heap[(index - 1) / _d])
+    {
+        T tmp = _heap[index];
+        _heap[index] = _heap[(index - 1) / _d];
+        _heap[(index - 1) / _d] = tmp;
+        index = (index - 1) / _d;
+    }
+}
+
+template <class T>
+void DHeap<T>::_bubbleDown(int index) {
+    while (index < _n)
+    {
+       
+        T max = index;
+
+        for (int i = _d * index + 1; i <= _d * index + _d; i++)
+        {
+            if (i >= _n)
+            {
+                break;
+            }
+            if (_heap[i] > _heap[max])
+            {
+                max = i;
+            }
+        }
+        if (max == index)
+        {
+            return;
+        }
+        T tmp = _heap[max];
+        _heap[max] = _heap[index];
+        _heap[index] = tmp;
+        index = max;
+    }
+}
+
+template <class T>
+T DHeap<T>::extractMax() {
+    int end = _n - 1;
+    T tmp = _heap[0];
+    _heap[0] = _heap[end];
+    _n--;
+    _bubbleDown(0);
+    return tmp;
+}
+template <class T>
+void DHeap<T>::insert(T item) {
+    int index = _n;
+    _heap[index] = item;
+    _bubbleUp(index);
+    _n++;
+}
