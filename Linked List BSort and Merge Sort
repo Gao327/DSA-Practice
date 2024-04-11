@@ -1,0 +1,277 @@
+
+
+#include <iostream>
+using namespace std;
+
+#define SPLITSTR "Splitting: "
+#define INTOSTR "Into :"
+#define MERGESTR "Merging: "
+
+
+class ListNode {
+
+private:
+    int _item;
+    ListNode* _next;
+
+public:
+    ListNode( int );        // Constructs the list node with parameter
+    void printItem();       // Prints the item
+
+    friend class List;
+};
+
+class List {
+
+private:
+    ListNode* _head;
+    int _size;
+
+public:
+    List();                             // Constructs an empty list
+    ~List();                            // Destructs a list
+
+    void insertHead( int );             // Inserts the new value into the linked list
+    int getHeadItem();                  // Retrieves the value in the head node
+    int removeHead();                   // Removes the head node and returns the value removed
+
+    void bubbleSort();            // TODO: Implement bubble sort
+    void mergeSort();                   // Calls the recursive merge sort function
+
+    void split( List* );                // TODO: Splits the linked lists into two halves
+    void merge( List* );                // TODO: Merge two linked lists in ascending order
+
+    void print();                 // Prints all items of the linked lists.
+};
+
+
+/*
+ * LISTNODE CONSTRUCTUORS AND FUNCTIONS
+ */
+ListNode::ListNode(int item) {
+    _item = item;
+    _next = NULL;
+}
+
+void ListNode::printItem() {
+    cout << _item;
+}
+
+
+/*
+ * LIST CONSTRUCTORS AND FUNCTIONS
+ */
+List::List() {
+    _head = NULL;
+    _size = 0;
+}
+
+List::~List() {
+    while (_head) {
+        removeHead();
+    }
+}
+
+void List::insertHead(int item) {
+    ListNode* newNode = new ListNode(item);
+    newNode->_next = _head;
+    _head = newNode;
+    _size++;
+}
+
+int List::getHeadItem() {
+    return _head->_item;
+}
+
+int List::removeHead() {
+    int item = -32768;  
+    ListNode* temp;
+
+    if (_head) {
+        temp = _head;
+        item = getHeadItem();
+        _head = _head->_next;
+        delete temp;
+        _size--;
+    }
+
+    return item;
+}
+
+void List::bubbleSort() {
+
+    // TODO: Implement bubble sort on this implementation of single linked list.
+    //       Print the linked list after every pass in the outer iteration
+    //       using print(false) function in List class if parameter is true.
+    //       The list should be sorted in ascending order.
+
+    // ENTER YOUR ANSWER BELOW.
+    // If no rotation in the iteration, list is sorted
+    int rotation = 1;
+    while (rotation) {
+        ListNode* curr = _head;
+        rotation = 0;
+        for (int i = 0; i < _size - 1; i++)
+        {
+            if (curr->_item > curr->_next->_item)
+            {
+                int tmp = curr->_next->_item;
+                curr->_next->_item = curr->_item;
+                curr->_item = tmp;
+                curr = curr->_next;
+                rotation += 1;
+               
+            }
+            else
+            {
+                curr = curr->_next;
+            }
+        }
+        if (rotation)
+        {
+            print();
+        }
+    }
+
+    // ENTER YOUR ANSWER ABOVE.
+}
+
+void List::mergeSort() {
+
+    // modify this function
+    // 
+    // each time you split a list
+    cout << SPLITSTR;
+    // original unsplitted list print
+    print();
+    cout << INTOSTR << endl;
+    // original splitted list print (but it's halved)
+    // the other splitted list print
+    List* otherList = new List;;
+    split(otherList);
+    print();
+    otherList->print();
+    if (_size > 1)
+    {
+        mergeSort();
+    }
+    if (otherList->_size > 1)
+    {
+        otherList->mergeSort();
+    }
+    
+   
+
+    // after you sorted the two lists
+    cout << MERGESTR << endl;
+    // original splitted list print (but it's halved)
+    // the other splitted list print
+
+    print();
+    otherList->print();
+    
+    // after you merged the above two sorted lists
+    cout << INTOSTR;
+    merge(otherList);
+    // print the merged sorted single list
+    print();
+
+}
+
+
+void List::split(List* otherList) {
+    // TODO: Implement splitting of the current list.
+    //       The first half of the list will be pointed by itself.
+    //       The second half of the list will be pointed by otherList.
+    //       It is guaranteed that the original list will have more than one node.
+    //
+    //       No need to print within split()
+    
+    // ENTER YOUR ANSWER BELOW.
+    if (_size < 2)
+    {
+        return;
+    }
+    int L = _size / 2;
+    int R = _size - L;
+    ListNode* tracer = _head;
+    for (int i = 0; i < L - 1; i++)
+    {
+        tracer = tracer->_next;
+    }
+    otherList->_head = tracer->_next;
+    otherList->_size = R;
+    tracer->_next = nullptr;
+    _size = L;
+
+   // ENTER YOUR ANSWER ABOVE.
+}
+
+void List::merge(List* otherList) {
+    ListNode* left = _head;
+    ListNode* right = otherList->_head;
+    int* tmp_array = new int[_size + otherList->_size];
+    int i = 0;
+
+    // Merge elements from both lists into tmp_array
+    while (left != nullptr && right != nullptr) {
+        if (left->_item <= right->_item) {
+            tmp_array[i++] = left->_item;
+            left = left->_next;
+        }
+        else {
+            tmp_array[i++] = right->_item;
+            right = right->_next;
+        }
+    }
+
+    // Copy remaining elements from left list, if any
+    while (left != nullptr) {
+        tmp_array[i++] = left->_item;
+        left = left->_next;
+    }
+
+    // Copy remaining elements from right list, if any
+    while (right != nullptr) {
+        tmp_array[i++] = right->_item;
+        right = right->_next;
+    }
+
+    // Now, tmp_array contains all elements from both lists in sorted order
+
+    // Create a new list with the sorted elements
+    _head = new ListNode(tmp_array[0]);
+    ListNode* curr = _head;
+    for (i = 1; i < _size + otherList->_size; i++) {
+        curr->_next = new ListNode(tmp_array[i]);
+        curr = curr->_next;
+    }
+
+    // Update _size of the current list
+    _size = _size + otherList->_size;
+
+    // Clear the other list
+    otherList->_head = nullptr;
+    otherList->_size = 0;
+
+    delete[] tmp_array;  
+}
+
+
+
+void List::print() {
+
+    ListNode* curr = _head;
+
+    while (curr) {
+        cout << curr->_item;
+        cout << " ";
+        curr = curr->_next;
+    }
+
+    cout << endl;
+}
+
+
+
+
