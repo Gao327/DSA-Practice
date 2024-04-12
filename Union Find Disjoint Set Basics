@@ -1,0 +1,55 @@
+// Quick-union: union the two members p, q into one set
+union(int p, int q){
+  for(int i = 0; i < Id.size; i++)
+  {
+    if(Id[i] == Id[q])
+    {
+      Id[i] == Id[p];
+    }
+  }
+}
+// now both p and q has the same Id. 
+
+// Quick Find: Find if 2 elements are in the same disjoint set
+find(int p, int q)
+{
+    return(Id[p] == Id[q]);
+}
+
+// Above are very slow.
+// Below are ways to optimise.
+// Before that, we add in parents for each elements in the virtual tree. If two elements shares the
+// same ancester, they are in the same disjoint set.
+
+// Find() with path compression O(log n) avg
+// Finding representative (ancester)
+int find(int i) 
+{
+ 
+    if (Parent[i] == i) {
+        return i;
+    }
+    else { 
+        int R = find(Parent[i]);
+        Parent[i] = R; 
+        return R;
+     }
+}
+
+// Union by size (weighted union)
+void union(int p, int q)
+{
+  int rp = find(p); //ancester for p.
+  int rq = find(q);
+  if(rp == rq) return;
+  if(size[rp] > size[rq])
+  {
+    parent[rq] = rp;
+    size[rq] += size[rp];
+  }
+  else
+  {
+    parent[rp] = rq;
+    size[rp] += size[rq];
+  }
+}
