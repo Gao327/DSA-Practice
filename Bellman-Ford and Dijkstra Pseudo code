@@ -1,0 +1,54 @@
+
+//Bellman-Ford
+// Function to relax an edge
+void relax(int u, int v){
+    // If the current known distance to v is greater than the distance to u plus the weight of the edge from u to v
+    if (dist[v] > dist[u] + weight(u,v))
+        // Update the distance to v
+        dist[v] = dist[u] + weight(u,v);
+}
+
+// Get the number of vertices in the graph
+int n = V.size();
+
+// Loop over all vertices
+for (int i=0; i<n; i++)
+    // Loop over all edges in the graph
+    for (auto e : edges)
+        // Relax the edge
+        relax(e.first, e.second);  // Assuming 'e' is a pair where 'e.first' is 'u' and 'e.second' is 'v'
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+// Dijkstra
+/*
+Initialize:
+• Put all vertices into a priority queue
+• Set all priorities to estimated distances as infinity
+• Set the starting vertex estimated distance as 0
+– Repeat until the priority is empty:
+• Extract the vertex v in the priority queue with the
+shortest estimated distance
+• Relax all the neighbors of v in the priority queue and
+update their estimated distance
+*/
+void relax(Edge e) {
+    // Get the source and destination vertices of the edge
+    int v = e.from();
+    int w = e.to();
+
+    // Get the weight of the edge
+    double weight = e.weight();
+
+    // If the current known distance to the destination vertex is greater than
+    // the distance to the source vertex plus the weight of the edge
+    if (distTo[w] > distTo[v] + weight) {
+        // Update the shortest known distance to the destination vertex
+        distTo[w] = distTo[v] + weight;
+
+        // Update the predecessor of the destination vertex on the shortest path from the source
+        parent[w] = v;
+
+        // Decrease the key associated with the destination vertex in the priority queue,
+        // as its shortest known distance from the source has been updated
+        pq.decreaseKey(w, distTo[w]);
+    }
+}
