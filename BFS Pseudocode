@@ -1,0 +1,30 @@
+// for finding SSSP in unweighted graph
+
+BFS(Node[] nodeList, int startId) {
+    boolean visited[numNode] = {0};
+    int parent[numNode];
+    for (int i=0; i<numNode; i++)
+        parent[i] = -1; // no parent yet
+
+    Set<int> frontier;
+    frontier.insert(startId);
+    visited[startId] = true;
+
+    while (!frontier.isEmpty()) {
+        Set<int> nextFrontier = new Set<Integer>;
+
+        while (!frontier.isEmpty()) {
+            extract a vertex v from frontier;
+
+            for (w = every neighbor of v) {
+                if (!visited[w]) {
+                    visited[w] = true;
+                    parent[w] = v;
+                    nextFrontier.add(w);
+                }
+            }
+        }
+
+        frontier = nextFrontier;
+    }
+}
