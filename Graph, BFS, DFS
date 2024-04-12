@@ -1,0 +1,167 @@
+// Include Linked List implementations
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Prepare stack and queue
+template <class T>
+class Stack
+{
+private:
+	List<T> _l;
+
+public:
+	void push(T item);
+	T pop();
+	void print(bool withoutSpace = false) { _l.print(withoutSpace); };
+	bool empty() { return _l.size() == 0; };
+};
+template <class T>
+
+class Queue
+{
+private:
+	List<T> _l;
+
+public:
+	void enqueue(T item);
+	T dequeue();
+	void print(bool withoutSpace = false) { _l.print(withoutSpace); };
+	bool empty() { return _l.size() == 0; };
+};
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Below is Def for Graph:
+class Graph {
+private:
+	List<int> * _al; // adjaceny list
+	int _nv; // number of nodes
+	bool *_visited;
+	int _nVisited;
+	void _resetVisited() {
+		for (int i = 0; i < _nv; i++) _visited[i] = false;
+		_nVisited = 0;
+	};
+	void _setVisited(int node) {
+		if (_visited[node] == false)
+			_nVisited++;
+		_visited[node] = true;
+	};
+	bool _isVisited(int node) {
+		return _visited[node];
+	};
+	
+public: 
+	Graph(int n);
+	void addEdge(int s, int d);
+	void BFS(int s, List<int>& output, bool resetVisited = true);
+	void DFS(int s, List<int>& output, bool resetVisited = true);
+  // Other things.
+}
+
+
+void Graph::BFS(int s, List<int>& output, bool resetVisited)
+{
+    Queue<int> q; // Create a queue to hold nodes to be visited
+    Queue<int> q2; // Create a second queue to hold the next level of nodes
+    _resetVisited(); // Reset the visited status of all nodes
+    q.enqueue(s); // Start with the source node
+
+    while (!q.empty()) { // While there are nodes to be visited
+        auto a = q.dequeue(); // Dequeue a node
+        if (!_isVisited(a)) { // If the node has not been visited
+            output.insertTail(a); // Add it to the output list
+            _setVisited(a); // Mark it as visited
+        }
+        _al[a].start(); // Start iterating over the neighbors of the node
+        while (!_al[a].end()) { // While there are neighbors left to visit
+            auto b = _al[a].current(); // Get the current neighbor
+            if (!_isVisited(b)) { // If the neighbor has not been visited
+                q2.enqueue(b); // Enqueue it to the second queue
+            }
+            _al[a].next(); // Move to the next neighbor
+        }
+        while (!q2.empty()) { // While there are nodes in the second queue
+            // Enqueue every member of the second queue into the first queue
+            q.enqueue(q2.dequeue());
+        }
+    }
+};
+
+void Graph::DFS(int s, List<int>& output, bool resetVisited)
+{ 
+    Stack<int> st;
+    Stack<int> st2;
+    _resetVisited();
+    st.push(s);
+
+    while (!st.empty()) {
+        auto a = st.pop();
+        if (!_isVisited(a)) {
+            output.insertTail(a);
+            _setVisited(a);
+        }
+        _al[a].start();
+        while (!_al[a].end()) {
+            auto b = _al[a].current();
+            if (!_isVisited(b)) {
+                st2.push(b);
+            }
+            _al[a].next();
+        }
+        while (!st2.empty()) {
+            //Push every member of stack 2 into stack 1
+            st.push(st2.pop());
+        }
+    }
+};
+
+
+// Similar to BFS but using stack because of the LIFO nature of BFS.
+void Graph::DFS(int s, List<int>& output, bool resetVisited)
+{ 
+    // Create two stacks for DFS traversal
+    Stack<int> st;
+    Stack<int> st2;
+
+    // Reset the visited status of all nodes
+    _resetVisited();
+
+    // Push the source node into the first stack
+    st.push(s);
+
+    // Continue until all nodes are visited
+    while (!st.empty()) {
+        // Pop a node from the first stack
+        auto currentNode = st.pop();
+
+        // If the node has not been visited yet
+        if (!_isVisited(currentNode)) {
+            // Add it to the output list
+            output.insertTail(currentNode);
+
+            // Mark the node as visited
+            _setVisited(currentNode);
+        }
+
+        // Start iterating over the neighbors of the current node
+        _al[currentNode].start();
+
+        // Continue until all neighbors are visited
+        while (!_al[currentNode].end()) {
+            // Get the current neighbor
+            auto neighborNode = _al[currentNode].current();
+
+            // If the neighbor node has not been visited yet
+            if (!_isVisited(neighborNode)) {
+                // Push it into the second stack
+                st2.push(neighborNode);
+            }
+
+            // Move to the next neighbor
+            _al[currentNode].next();
+        }
+
+        // Push every node from the second stack into the first stack
+        while (!st2.empty()) {
+            st.push(st2.pop());
+        }
+    }
+};
+
