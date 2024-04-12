@@ -1,0 +1,25 @@
+struct Node {
+    int time; // AVL tree is sorted based on time
+    int sales; // Sales Value (not used in this example)
+    int weight; // 2. weight is used to avoid frequent update of rank
+    Node* left;
+    Node* right;
+    int rank;
+    // Insert Node based on time so time partitions the range
+    Node(int t, int s) : time(t), sales(s), weight(1), left(nullptr), right(nullptr) {}
+    
+};
+int rank(Node node) {...;}
+
+class AugmentedTree {
+private:
+    Node* root;
+    // 3. insert the nodes based on time (I did not include the balancing).
+    // If the node is nullptr, the weight is 0. Hence the weight of leaf becomes 1.
+    int getWeight(Node* node) {
+        if (node == nullptr)
+        {
+            return 0;
+        }
+        return 1 + getWeight(node->left) + getWeight(node->right);
+    }
