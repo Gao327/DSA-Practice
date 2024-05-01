@@ -1,4 +1,4 @@
-// Quick-union: union the two members p, q into one set
+// Quick-Find: Find: O(1), Union: O(n) worst. Tree Flat
 union(int p, int q){
   for(int i = 0; i < Id.size; i++)
   {
@@ -9,12 +9,25 @@ union(int p, int q){
   }
 }
 // now both p and q has the same Id. 
-
-// Quick Find: Find if 2 elements are in the same disjoint set
 find(int p, int q)
 {
-    return(Id[p] == Id[q]);
+  return (Id[p] == Id[q]);
 }
+
+
+// Quick Union: Find: O(n), Union: O(n) worst Tree tall
+find(int p, int q) // Check if two have the same ancester
+{
+  while(parent[p] != p) p = parent[p];
+  while(parent[q] != q) q = parent[q];
+  return (p==q);
+}
+union(int p, int q)
+{
+  while(parent[p] != p) p = parent[p];
+  while(parent[q] != q) q = parent[q];
+  parent[p] = q;
+
 
 // Above are very slow.
 // Below are ways to optimise.
@@ -25,24 +38,23 @@ find(int p, int q)
 // Finding representative (ancester)
 int find(int i) 
 {
- 
-    if (Parent[i] == i) {
-        return i;
-    }
-    else { 
-        int R = find(Parent[i]);
-        Parent[i] = R; 
-        return R;
-     }
+  root = p;
+  while (parent[root] != root) root = parent[root];
+  while (parent[p] != p) {
+    temp = parent[p];
+    parent[p] = root;
+    p = temp;
+  }
+  return root;
 }
-
-// Union by size (weighted union)
+// Union by size (weighted union), find and union: O(log n)
+// one more int[] for size is used
 void union(int p, int q)
 {
   int rp = find(p); //ancester for p.
   int rq = find(q);
-  if(rp == rq) return;
-  if(size[rp] > size[rq])
+  if(rp == rq) return; //Already in the same union
+  if(size[rp] > size[rq]) // Smaller tree added to the larger one
   {
     parent[rq] = rp;
     size[rq] += size[rp];
@@ -53,3 +65,5 @@ void union(int p, int q)
     size[rp] += size[rq];
   }
 }
+// weighted-union with path-compression α(m, n) for both find and union. 
+
