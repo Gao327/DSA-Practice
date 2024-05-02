@@ -27,6 +27,12 @@ public:
 	bool empty() { return _l.size() == 0; };
 };
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+Graph terminology:
+degree: maximum of adjacent edges
+diameter: maximum distance between two nodes, following the shortest pathag
+
+
 // Below is Def for Graph:
 class Graph {
 private:
